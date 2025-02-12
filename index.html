@@ -85,6 +85,23 @@
             opacity: 0.8;
             animation: float 5s linear infinite;
         }
+        .side-image {
+            position: fixed;
+            width: 150px;
+            opacity: 0.8;
+            transition: transform 0.5s ease-out;
+        }
+        .side-image.left {
+            left: 10px;
+        }
+        .side-image.right {
+            right: 10px;
+        }
+        @media (max-width: 768px) {
+            .side-image {
+                width: 80px;
+            }
+        }
         @keyframes float {
             0% { transform: translateY(0) scale(1); opacity: 0.8; }
             50% { transform: translateY(-200px) scale(1.2); opacity: 0.5; }
@@ -95,6 +112,7 @@
             50% { transform: scale(3); opacity: 0.8; }
             100% { transform: scale(0); opacity: 0; }
         }
+        
     </style>
 </head>
 <body>
@@ -150,8 +168,19 @@
         document.addEventListener("mousemove", function(event) {
             mouseHeart(event.clientX, event.clientY);
         });
+
+        function updateSideImages() {
+            let scrollPosition = window.scrollY;
+            document.querySelectorAll('.side-image').forEach(img => {
+                img.style.transform = `translateY(${scrollPosition * 0.1}px)`;
+            });
+        }
+
+        document.addEventListener("scroll", updateSideImages);
     
     </script>
+    <img src="side1.gif" class="side-image left" alt="Side Image 1">
+    <img src="side2.gif" class="side-image right" alt="Side Image 2">
     <div class="timeline">
         <div class="milestone">
             <h1>Bylo nebylo...</h1>
