@@ -1,276 +1,609 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mia a Jenda</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Mogra&display=swap');
-        
-        body {
-            font-family: 'Mogra', cursive;
-            background-color: #2c1e3d;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            position: relative;
-        }
-        .timeline {
-            position: relative;
-            width: 80%;
-            margin: 30px auto;
-            text-align: center;
-        }
-        .milestone {
-            position: relative;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 15px;
-            opacity: 0;
-            transform: translateY(50px) scale(0.9);
-            transition: all 0.8s ease-out;
-            z-index: 5;
-        }
-        .milestone img {
-            width: 100%;
-            max-width: 250px;
-            border-radius: 15px;
-            display: block;
-            margin: 10px auto;
-            transform: rotate(-5deg);
-            transition: transform 0.5s ease;
-        }
-        .milestone img:hover {
-            transform: rotate(5deg);
-        }
-        .milestone.show {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mijunky Narozeninový Kalendář</title>
 
-        h1{
-            font-size: 4rem;
-        }
+  <style>
+    :root {
+      --bg: #fff7f0;
+      --card: #ffffff;
+      --text: #2d1f1f;
+      --muted: #8f7272;
+      --accent: #e96b8c;
+      --accent-dark: #c94f72;
+      --locked: #e6d8d8;
+      --shadow: 0 18px 40px rgba(80, 40, 50, 0.14);
+      --radius: 24px;
+    }
 
-        h2{
-            font-size: 2rem;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        p{
-            font-size: 1.5rem;
-        }
-        .photo-gallery {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0px;
-            margin-top: 20px;
-        }
-        .photo-gallery img {
-            width: auto;
-            max-width: 250px;
-            height: auto;
-            border-radius: 15px;
-            display: block;
-            margin: 10px;
-            object-fit: cover;
-        }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, #ffe2ec, transparent 35%),
+        radial-gradient(circle at bottom right, #ffe8c8, transparent 35%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-        .heart {
-            position: fixed;
-            bottom: 0;
-            width: 20px;
-            height: 20px;
-            opacity: 0.8;
-            animation: float 5s linear infinite;
-        }
-        .side-image {
-            position: fixed;
-            width: 150px;
-            opacity: 0.8;
-            transition: transform 0.5s ease-out;
-        }
-        .side-image.left {
-            left: 10px;
-        }
-        .side-image.right {
-            right: 10px;
-        }
-        @media (max-width: 768px) {
-            .side-image {
-                width: 80px;
-            }
-        }
-        @keyframes float {
-            0% { transform: translateY(0) scale(1); opacity: 0.8; }
-            50% { transform: translateY(-200px) scale(1.2); opacity: 0.5; }
-            100% { transform: translateY(-400px) scale(1); opacity: 0; }
-        }
-        @keyframes pop {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(3); opacity: 0.8; }
-            100% { transform: scale(0); opacity: 0; }
-        }
-        
-    </style>
+    .page {
+      width: min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 40px 0 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .eyebrow {
+      color: var(--accent-dark);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 8vw, 5rem);
+      line-height: 0.95;
+    }
+
+    .intro {
+      max-width: 620px;
+      margin: 18px auto 0;
+      color: var(--muted);
+      font-size: 1.06rem;
+      line-height: 1.65;
+    }
+
+    .progress {
+      margin: 26px auto 0;
+      width: min(420px, 100%);
+      background: rgba(255, 255, 255, 0.7);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 14px;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.04);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff9ab5, #e96b8c);
+      border-radius: 999px;
+      transition: width 0.4s ease;
+    }
+
+    .progress-text {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 38px;
+    }
+
+    .card {
+      position: relative;
+      min-height: 190px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--card);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+      overflow: hidden;
+      color: inherit;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 22px 50px rgba(80, 40, 50, 0.2);
+    }
+
+   .card.locked {
+      cursor: not-allowed;
+      background: rgba(255, 255, 255, 0.42);
+      color: #a99696;
+      min-height: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: none;
+      border: 1px solid rgba(120, 90, 90, 0.12);
+    }
+
+    .card.locked:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .card.locked::after {
+      content: "";
+    }
+
+
+    .card.locked .lock-icon {
+      font-size: 1.6rem;
+      opacity: 0.7;
+    }
+    .card.today {
+      outline: 3px solid rgba(233, 107, 140, 0.35);
+    }
+
+    .card.birthday {
+      background: linear-gradient(145deg, #fff, #ffe4ee);
+    }
+
+    .date {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent-dark);
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
+
+    .card.locked .date {
+      margin-bottom: 12px;
+      color: #9d8989;
+      font-size: 0.95rem;
+    }
+
+    .emoji {
+      font-size: 2.1rem;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 1.28rem;
+    }
+
+    .card p {
+      margin: 9px 0 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .tag {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 0.75rem;
+      color: var(--accent-dark);
+      background: #ffe7ef;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(35, 20, 24, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 10;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(560px, 100%);
+      background: #fff;
+      border-radius: 32px;
+      box-shadow: 0 28px 90px rgba(0, 0, 0, 0.28);
+      padding: 28px;
+      position: relative;
+      animation: pop 0.22s ease;
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: scale(0.96) translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      border: none;
+      background: #f5eeee;
+      border-radius: 999px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .modal-emoji {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-date {
+      color: var(--accent-dark);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .modal h2 {
+      margin: 0 46px 14px 0;
+      font-size: 2rem;
+    }
+
+    .modal p {
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 1.06rem;
+      margin: 0;
+      white-space: pre-line;
+    }
+
+    .modal .note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -20px;
+      font-size: 1.3rem;
+      animation: fall 1.5s linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 46px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+  </style>
 </head>
+
 <body>
-    <script>
-        function createHeart() {
-            const heartImages = ['heart1.png', 'heart2.png', 'heart3.png', 'heart4.png'];
-            const heart = document.createElement("div");
-            heart.classList.add("heart");
-            heart.style.backgroundImage = `url(${heartImages[Math.floor(Math.random() * heartImages.length)]})`;
-            heart.style.position = "fixed";
-            heart.style.bottom = "0";
-            heart.style.left = Math.random() * 100 + "vw";
-            heart.style.width = "60px";
-            heart.style.height = "60px";
-            heart.style.backgroundSize = "cover";
-            heart.style.zIndex = "3";
-            document.body.appendChild(heart);
-            heart.style.animationDuration = Math.random() * 2 + 3 + "s";
-            
-            heart.addEventListener("click", function() {
-                heart.style.animation = "pop 0.5s ease-out forwards";
-                setTimeout(() => heart.remove(), 500);
-            });
-            
-            setTimeout(() => { heart.remove(); }, 5000);
+  <main class="page">
+    <header>
+      <div class="eyebrow">jenom pro tebe</div>
+      <h1>Mijunky Narozeninový Kalendář</h1>
+      <p class="intro">
+        Každý den se ti otevře jedna kartička. Každý den tam bude něco jiného, všechno je ale jenom tvoje.
+      </p>
+
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="progress-text" id="progressText"></div>
+    </header>
+
+    <section class="calendar" id="calendar"></section>
+
+    <footer>
+      Vyrobeno s láskou.
+    </footer>
+  </main>
+
+  <div class="modal-backdrop" id="modalBackdrop">
+    <article class="modal">
+      <button class="close" id="closeModal">×</button>
+      <div class="modal-emoji" id="modalEmoji"></div>
+      <div class="modal-date" id="modalDate"></div>
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div class="note" id="modalNote"></div>
+    </article>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+
+  <script>
+    /*
+      Pro testování změň třeba na:
+      const TEST_DATE = "2026-05-25";
+
+      Pro ostrou verzi nech:
+      const TEST_DATE = null;
+    */
+    const TEST_DATE = "2026-05-30";
+
+    const surprises = [
+      {
+        date: "2026-05-19",
+        emoji: "🎂",
+        tag: "narozeniny",
+        title: "První narozeninový den",
+        preview: "Začínáme hezky večeří.",
+        text: "Dneska máš narozeniny!.\n\nVečer tě beru na večeři. Nemusíš nic plánovat, nic řešit, jenom být krásná a nechat se pozvat.",
+        note: "Dress code: cokoliv, v čem se cítíš dobře.",
+        special: true
+      },
+      {
+        date: "2026-05-20",
+        emoji: "💌",
+        tag: "na dálku",
+        title: "Den, kdy se neuvidíme",
+        preview: "Ale i tak tu něco bude.",
+        text: "Dneska se celý den neuvidíme, takže tahle kartička je malá náhrada za mě.\n\nÚkol pro tebe: udělej si dneska aspoň jednu věc jenom pro sebe. Něco dobrého, něco klidného, něco milého.\n\nA večer si zavoláme abychom byli aspoň trochu spolu.",
+      },
+      {
+        date: "2026-05-21",
+        emoji: "🖼️",
+        tag: "vernisáž",
+        title: "Výstava",
+        preview: "Tenhle den si ukradnu pro sebe.",
+        text: "Dneska mám vernisáž výstavy. Jestli budeš chtít, budu moc rád, když tam budeš se mnou.",
+      },
+      {
+        date: "2026-05-22",
+        emoji: "🍝",
+        tag: "spolu",
+        title: "Domácí mini rande",
+        preview: "Něco jednoduchého, ale našeho.",
+        text: "Dneska žádný velký program. Jenom my dva.\n\nUděláme si domácí mini rande: něco uvaříme, pustíme si film nebo seriál, uděláme si drink a užijeme si to",
+        
+      },
+      {
+        date: "2026-05-23",
+        emoji: "🥂",
+        tag: "oslava",
+        title: "Den s kamarádkama",
+        preview: "A já přiložím ruku k dílu",
+        text: "Dneska máš oslavu s kamarádkama, takže moje překvapení je  praktické.\n\nPomůžu ti připravit olavu: jídlo, pití, hry, co budeš chtít",
+      },
+      {
+        date: "2026-05-24",
+        emoji: "🌿",
+        tag: "pomalý den",
+        title: "Pomalá neděle",
+        preview: "Po oslavě žádný tlak.",
+        text: "Dneska nic nemusíš.\n\nPlán je jednoduchý: pomalé ráno, dobrá snídaně nebo kafe, procházka a den bez zbytečného spěchu.",
+      },
+      {
+        date: "2026-05-25",
+        emoji: "🥩",
+        tag: "výlet",
+        title: "Korejské BBQ v Plzni",
+        preview: "Dneska jdeme jíst hodně dobře.",
+        text: "Dneska tě beru na korejské BBQ v Plzni.\n\nOficiální plán: dobře se najíst.",
+      },
+      {
+        date: "2026-05-26",
+        emoji: "🎭",
+        tag: "divadlo",
+        title: "Dogville v Divadle J. K. Tyla",
+        preview: "Večer v divadle.",
+        text: "Dneska nás čeká Divadlo J. K. Tyla.\n\nUvidíme představení Dogville a cestou z divadla budeme hořečně diskutovat.",
+      },
+      {
+        date: "2026-05-27",
+        emoji: "🥩",
+        tag: "výlet",
+        title: "Korejské BBQ v Plzni",
+        preview: "Dneska jdeme jíst hodně dobře.",
+        text: "Dneska tě beru na korejské BBQ v Plzni.\n\nOficiální plán: dobře se najíst.",
+      },
+      {
+        date: "2026-05-28",
+        emoji: "🎁",
+        tag: "malý dárek",
+        title: "Malý dárek",
+        preview: "Malý dáreček pro tebe.",
+        text: "Tak si ho rozbal!",
+        
+      },
+      {
+        date: "2026-05-29",
+        emoji: "🎸",
+        tag: "koncert",
+        title: "Bert & Friends",
+        preview: "Dneska jdeme na koncert!",
+        text: "Dneska jdeme na Bert & Friends.\n\nHudba, večer venku a vibe.",
+      },
+      {
+        date: "2026-05-30",
+        emoji: "🧺",
+        tag: "sobota",
+        title: "Bleší trhy",
+        preview: "Lovíme poklady.",
+        text: "Dneska půjdeme na bleší trhy.\n\nCíl: najít další vybavení do bytu (ideálně něco stříbrného nebo barevného)",
+      }
+    ];
+
+    const calendar = document.getElementById("calendar");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+    const closeModal = document.getElementById("closeModal");
+
+    const modalEmoji = document.getElementById("modalEmoji");
+    const modalDate = document.getElementById("modalDate");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalText = document.getElementById("modalText");
+    const modalNote = document.getElementById("modalNote");
+
+    const progressBar = document.getElementById("progressBar");
+    const progressText = document.getElementById("progressText");
+    const confetti = document.getElementById("confetti");
+
+    function getTodayString() {
+      const now = TEST_DATE ? new Date(TEST_DATE + "T12:00:00") : new Date();
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString + "T12:00:00");
+
+      return new Intl.DateTimeFormat("cs-CZ", {
+        weekday: "long",
+        day: "numeric",
+        month: "long"
+      }).format(date);
+    }
+
+    function isUnlocked(item) {
+      return item.date <= getTodayString();
+    }
+
+    function isToday(item) {
+      return item.date === getTodayString();
+    }
+
+    function renderCalendar() {
+      const today = getTodayString();
+      const unlockedCount = surprises.filter(isUnlocked).length;
+      const progress = Math.round((unlockedCount / surprises.length) * 100);
+
+      progressBar.style.width = `${progress}%`;
+      progressText.textContent = `Odemčeno ${unlockedCount} z ${surprises.length} kartiček`;
+
+      calendar.innerHTML = "";
+
+      surprises.forEach((item) => {
+        const unlocked = isUnlocked(item);
+
+        const card = document.createElement("button");
+        card.className = [
+          "card",
+          unlocked ? "unlocked" : "locked",
+          isToday(item) ? "today" : "",
+          item.special ? "birthday" : ""
+        ].join(" ");
+
+        if (unlocked) {
+          card.innerHTML = `
+            <div class="date">${formatDate(item.date)}</div>
+            <div class="emoji">${item.emoji}</div>
+            <h2>${item.title}</h2>
+            <p>${item.preview}</p>
+          `;
+        } else {
+          card.innerHTML = `
+            <div class="date">${formatDate(item.date)}</div>
+            <div class="lock-icon">🔒</div>
+          `;
         }
-        setInterval(createHeart, 5000);
-        
-        
-        function mouseHeart(x, y) {
-            const heartImages = ['heart1.png', 'heart2.png', 'heart3.png', 'heart4.png'];
-            const heart = document.createElement("div");
-            heart.classList.add("heart");
-            heart.style.backgroundImage = `url(${heartImages[Math.floor(Math.random() * heartImages.length)]})`;
-            heart.style.position = "fixed";
-            heart.style.left = x + "px";
-            heart.style.top = y + "px";
-            heart.style.width = "30px";
-            heart.style.height = "30px";
-            heart.style.backgroundSize = "cover";
-            heart.style.zIndex = "3";
-            document.body.appendChild(heart);
-            
-            setTimeout(() => {
-                heart.style.transform = "scale(1.5)";
-                heart.style.opacity = "0";
-                heart.style.transition = "transform 1s ease-out, opacity 1s ease-out";
-            }, 10);
-            
-            setTimeout(() => { heart.remove(); }, 1000);
-        }
-        
-        document.addEventListener("mousemove", function(event) {
-            mouseHeart(event.clientX, event.clientY);
+
+        card.addEventListener("click", () => {
+          if (!unlocked) {
+            openLockedModal(item);
+            return;
+          }
+
+          openModal(item);
+
+          if (item.special || isToday(item)) {
+            launchConfetti();
+          }
         });
 
-        function updateSideImages() {
-            let scrollPosition = window.scrollY;
-            document.querySelectorAll('.side-image').forEach(img => {
-                img.style.transform = `translateY(${scrollPosition * 0.1}px)`;
-            });
-        }
+        calendar.appendChild(card);
+      });
+    }
 
-        document.addEventListener("scroll", updateSideImages);
-    
-    </script>
-    <img src="side1.gif" class="side-image left" alt="Side Image 1">
-    <img src="side2.gif" class="side-image right" alt="Side Image 2">
-    <div class="timeline">
-        <div class="milestone">
-            <h1>Bylo nebylo...</h1>
-            <p>Na jednom plese potkal Jenda krásnou Mijunku...</p>
-            <img src="ples.JPG" alt="First Meeting">
-        </div>
-        <div class="milestone">
-            <p>Jenda na ní nepřestával myslet, a tak se rozhodl ji pozvat na čaj...</p>
-            <img src="cajovna.png" alt="First Date">
-        </div>
-        <div class="milestone">
-            <p>A pak to už šlo samo. Strávili spolu spoustu času sezením na lavičkách</p>
-            <div class="photo-gallery">
-                <img src="lavicka.JPG" alt="First Meeting 1">
-                <img src="lavicka2.JPEG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>Ale taky na loukách</p>
-            <img src="louka.JPG" alt="Louka">
-        </div>
-        <div class="milestone">
-            <p>A po pár měsících je čekala svatba(první z mnoha)</p>
-            <img src="svatba.JPG" alt="Louka">
-        </div>
-        <div class="milestone">
-            <p>Párkrát je bylo možné zahlédnout i u Lipáckého stolu</p>
-            <div class="photo-gallery">
-                <img src="lipak1.JPG" alt="First Meeting 1">
-                <img src="lipak2.JPG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>Nebo na kulturních událostech</p>
-            <div class="photo-gallery">
-                <img src="vsudybud.JPG" alt="First Meeting 1">
-                <img src="skolarocku1.JPEG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>A svou lásku dovezli i do Kutné Hory</p>
-            <div class="photo-gallery">
-                <img src="kutnahora1.JPG" alt="First Meeting 1">
-                <img src="kutnahora2.JPEG" alt="First Meeting 2">
-                <img src="kutnahora3.JPG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>A pokud zrovna netančí na plese</p>
-            <div class="photo-gallery">
-                <img src="ples1.JPEG" alt="First Meeting 1">
-                <img src="ples2.JPG" alt="First Meeting 2">
-                <img src="ples3.JPG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>Nebo se podivně nepřevlékají</p>
-            <div class="photo-gallery">
-                <img src="halloween.JPG" alt="First Meeting 1">
-                <img src="2010.JPG" alt="First Meeting 2">
-                <img src="korunky.JPG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <p>Tak jsou nejspíš někde jen spolu a moc se milují</p>
-            <div class="photo-gallery">
-                <img src="kresleni.JPG" alt="First Meeting 1">
-                <img src="hajiky.JPG" alt="First Meeting 2">
-            </div>
-        </div>
-        <div class="milestone">
-            <h2>A pak žili šťastně...</h2>
-            <p>Už 2 roky!</p>
-            <img src="vyroci.gif" alt="Anniversary">
-        </div>
-        
-    </div>
-    
-    <script>
-        document.addEventListener("scroll", function() {
-            let milestones = document.querySelectorAll(".milestone");
-            let scrollPosition = window.scrollY + window.innerHeight;
-            
-            milestones.forEach(milestone => {
-                if (milestone.offsetTop < scrollPosition - 50) {
-                    milestone.classList.add("show");
-                }
-            });
-        });
-    </script>
+    function openModal(item) {
+      modalEmoji.textContent = item.emoji;
+      modalDate.textContent = formatDate(item.date);
+      modalTitle.textContent = item.title;
+      modalText.textContent = item.text;
+      modalNote.textContent = item.note || "";
+      modalBackdrop.classList.add("open");
+    }
+
+    function openLockedModal(item) {
+      modalEmoji.textContent = "🔒";
+      modalDate.textContent = formatDate(item.date);
+      modalTitle.textContent = "Ještě chvilku počkej";
+      modalText.textContent = "Tahle kartička je zatím zamčená. Otevře se přesně v ten správný den.";
+      modalBackdrop.classList.add("open");
+    }
+
+    function close() {
+      modalBackdrop.classList.remove("open");
+    }
+
+    closeModal.addEventListener("click", close);
+
+    modalBackdrop.addEventListener("click", (event) => {
+      if (event.target === modalBackdrop) {
+        close();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        close();
+      }
+    });
+
+    function launchConfetti() {
+      const symbols = ["💕", "✨", "🎂", "🌸", "🎁", "💫"];
+      confetti.innerHTML = "";
+
+      for (let i = 0; i < 36; i++) {
+        const piece = document.createElement("span");
+        piece.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.animationDelay = Math.random() * 0.45 + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        confetti.appendChild(piece);
+      }
+
+      setTimeout(() => {
+        confetti.innerHTML = "";
+      }, 2200);
+    }
+
+    renderCalendar();
+  </script>
 </body>
 </html>
-
